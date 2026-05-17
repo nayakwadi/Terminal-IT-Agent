@@ -1,0 +1,27 @@
+Ticket: INC0012789
+Reporter: Marcus Aronoff <maronoff@cedarmutual.com>
+Reporter ID: U-51904
+Department: Underwriting - Commercial Lines
+Location: Hartford, CT (HARTFORD-HQ)
+Created: 2026-05-14 11:47 EDT
+Priority: 4 - Low
+Category: Application Issue
+Assignment group: Service Desk - Tier 1
+State: New
+
+Short description:
+Dropbox not syncing — broker keeps asking for the quote pack
+
+Description:
+My broker partner at Marsh has been waiting for the renewal quote pack since Monday. I dropped it in our shared Dropbox folder (Cedar Mutual <-> Marsh - Renewals) and confirmed it shows up in my desktop Dropbox client. But my contact at Marsh says nothing has arrived, and when I open dropbox.com to check, the page just doesn't load.
+
+Is Dropbox down? Or is there something with my account? I really need to get this to them today.
+
+Background:
+- I've used this same shared folder with Marsh since November 2025.
+- The Marsh broker confirmed they can see the folder, they just don't see today's files.
+- My laptop is on the corporate VPN.
+
+Thanks,
+Marc
+Underwriting Lead, Commercial Lines

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://help.zscaler.com/zia/api/url-filtering-policy",
+  "exportInfo": {
+    "exportedFrom": "Cedar Mutual Insurance — ZIA Production Tenant",
+    "tenantId": "zscaler-cedarmutual-prod",
+    "exportedAt": "2026-04-02T14:18:43Z",
+    "exportedBy": {
+      "id": 482109,
+      "name": "Priya Iyer",
+      "email": "piyer@cedarmutual.com",
+      "role": "Network Security Admin"
+    },
+    "exportFormat": "ZIA URL Filtering Policy v6.3"
+  },
+  "policy": {
+    "id": 1004721,
+    "name": "Block-Cloud-Storage-All-Users",
+    "description": "Blocks personal and business cloud storage services for all corporate users in alignment with the IT Security Standard (POL-IT-009) section 5.4. This rule was created in response to the Q3 2024 audit finding that personal cloud storage was being used to exfiltrate underwriting data. Scope: ALL users, ALL locations, ALL departments. Override path: file an exception via ServiceNow form SR-NET-URL-EXC. Last reviewed by Network Security: 2026-04-02.",
+    "order": 7,
+    "rank": 5,
+    "state": "ENABLED",
+    "action": "BLOCK",
+    "protocols": [
+      "HTTPS_RULE",
+      "HTTP_RULE",
+      "FTP_RULE",
+      "FTPS_RULE"
+    ],
+    "urlCategories": [
+      "CLOUD_STORAGE_AND_BACKUP",
+      "PROXY_AVOIDANCE_AND_ANONYMIZERS",
+      "PEER_TO_PEER_FILE_SHARING"
+    ],
+    "customUrlCategories": [],
+    "users": [],
+    "groups": [],
+    "departments": [],
+    "locations": [],
+    "deviceGroups": [],
+    "timeWindows": [],
+    "userAgentTypes": ["BROWSER", "OTHER"],
+    "deviceTrustLevels": ["ANY"],
+    "blockOverride": false,
+    "endUserNotificationUrl": "https://intranet.cedarmutual.com/it/access-blocked?rule=cloud-storage",
+    "ciparule": false,
+    "validityStartTime": null,
+    "validityEndTime": null,
+    "validityTimeZoneId": null,
+    "lastModifiedTime": 1727836800,
+    "lastModifiedBy": {
+      "id": 482109,
+      "name": "Priya Iyer",
+      "extensions": {
+        "team": "Network Security",
+        "ticketReference": "CHG0048721"
+      }
+    },
+    "createdTime": 1727409600
+  },
+  "categoryDetails": {
+    "CLOUD_STORAGE_AND_BACKUP": {
+      "description": "Sites that provide cloud-based file storage, backup, and synchronization. Includes personal and business-tier services. Zscaler-maintained category; see Zscaler URL Database for the full list.",
+      "representativeUrls": [
+        "dropbox.com",
+        "www.dropbox.com",
+        "drive.google.com",
+        "icloud.com",
+        "box.com",
+        "mega.nz",
+        "pcloud.com",
+        "sync.com",
+        "mediafire.com",
+        "wetransfer.com",
+        "smash.fr"
+      ],
+      "note": "Microsoft OneDrive (onedrive.live.com, *.onedrive.com, *.sharepoint.com) is in this category but is explicitly bypassed by rule id 1004715 (Allow-Microsoft-365-Cloud-Storage)."
+    },
+    "PROXY_AVOIDANCE_AND_ANONYMIZERS": {
+      "description": "Anonymizing proxies and circumvention services."
+    },
+    "PEER_TO_PEER_FILE_SHARING": {
+      "description": "BitTorrent and similar peer-to-peer protocols."
+    }
+  },
+  "downstreamEffect": {
+    "summary": "Cloud storage destinations resolve, TCP/443 connects, then Zscaler ZIA returns HTTP 403 with the end-user notification URL. End user sees the Cedar Mutual block page titled 'Access blocked — Cloud Storage policy'.",
+    "exampleAffectedHosts": [
+      "dropbox.com",
+      "www.dropbox.com",
+      "api.dropboxapi.com",
+      "client.dropbox.com"
+    ],
+    "exampleUserExperience": "When an employee browses to dropbox.com from any Cedar Mutual-managed device (on-network or via ZIA tunnel), the page is replaced with the Cedar Mutual block page. The Dropbox desktop client cannot sync; it shows 'Connecting...' indefinitely."
+  },
+  "relatedRules": [
+    {
+      "id": 1004715,
+      "name": "Allow-Microsoft-365-Cloud-Storage",
+      "action": "ALLOW",
+      "note": "Carves OneDrive and SharePoint Online out of the cloud-storage block. No equivalent carve-out exists for Dropbox Business."
+    },
+    {
+      "id": 1004720,
+      "name": "Allow-Box-Vendor-Workflow-Limited",
+      "action": "ALLOW",
+      "note": "Carves box.com out of the block, but only for the 'finance-vendor-exchange' user group. Does not apply to general users."
+    }
+  ],
+  "notes": [
+    "This rule does not distinguish between Dropbox Business (Cedar Mutual tenant) and personal Dropbox. The Zscaler URL category CLOUD_STORAGE_AND_BACKUP groups all Dropbox-owned hostnames together.",
+    "Carve-outs require either a custom URL category or a per-rule allow at a higher rank than this block rule. Neither exists for Dropbox Business as of the export date.",
+    "Exception requests received in Q1 2026 referencing Dropbox: 14 tickets. All routed to Network Security via SR-NET-URL-EXC; none yet approved.",
+    "Compliance owner: Information Security. Operational owner: Network Security."
+  ]
+}

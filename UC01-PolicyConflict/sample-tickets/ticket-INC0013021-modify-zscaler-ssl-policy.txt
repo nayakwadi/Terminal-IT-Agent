@@ -1,0 +1,47 @@
+Ticket: INC0013021
+Reporter: Derek Huang <dhuang@cedarmutual.com>
+Reporter ID: U-39204
+Department: DevOps Engineering
+Location: Hartford, CT (HARTFORD-HQ)
+Created: 2026-05-16 10:05 EDT
+Priority: 2 - High
+Category: Security / Network Policy
+Assignment group: Service Desk - Tier 1
+State: New
+
+Short description:
+Request to disable Zscaler SSL inspection for our CI/CD pipeline endpoints
+
+Description:
+Hi IT Security,
+
+Our DevOps team is running into repeated TLS handshake failures when our Jenkins CI/CD pipeline pulls Docker images from our private registry (registry.cedarmutual.internal) and pushes build artifacts to our AWS CodeArtifact endpoint.
+
+Zscaler's SSL inspection is intercepting and re-signing the TLS traffic, and our pipeline agents do not trust the Zscaler intermediate CA. This is causing build failures across three delivery teams since yesterday's Zscaler policy push.
+
+Requested change:
+We need Zscaler SSL inspection disabled (or a bypass rule added) for the following:
+  - registry.cedarmutual.internal
+  - *.amazonaws.com (specifically CodeArtifact and ECR endpoints)
+  - pypi.org and npmjs.com (package managers used in build steps)
+
+We understand SSL inspection is a security control, but our internal policy document (DevOps Runbook v3.1 on SharePoint, section 6.4) explicitly states that CI/CD pipeline traffic to approved internal registries is exempt from deep-packet inspection.
+
+Additionally, to speed up the fix, could you temporarily lower the Zscaler URL Filtering policy category "Developer Tools" from "Caution" to "Allow" for machines in the CORP-DEVOPS-SG Active Directory group? The current "Caution" setting is adding a 3-second interstitial page to every pip install, which breaks non-interactive pipeline jobs.
+
+Impact if not resolved:
+All three product teams are blocked from deploying hotfixes. We have a compliance patch due to InfoSec by COB Friday (2026-05-17).
+
+Steps already tried:
+1. Added the Zscaler CA cert to the Jenkins agent trust store — did not resolve the ECR issue.
+2. Opened a ticket with the pipeline team — they confirmed the root cause is ZIA policy.
+3. Escalated to our manager (Sarah Okonkwo) who approved this change request.
+
+Attachments:
+- jenkins-build-log-tls-error.txt
+- zscaler-block-event-export-2026-05-16.csv
+
+Thanks,
+Derek Huang
+Senior DevOps Engineer
+dhuang@cedarmutual.com  ·  +1 860 555 0287

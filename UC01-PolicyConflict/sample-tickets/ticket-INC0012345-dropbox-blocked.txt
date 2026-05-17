@@ -1,0 +1,44 @@
+Ticket: INC0012345
+Reporter: Jane Doe <jdoe@cedarmutual.com>
+Reporter ID: U-48217
+Department: External Audit Liaison
+Location: Hartford, CT (HARTFORD-HQ)
+Created: 2026-05-14 09:23 EDT
+Priority: 3 - Medium
+Category: Network / Application Access
+Assignment group: Service Desk - Tier 1
+State: New
+
+Short description:
+Cannot access Dropbox; need to share files with external auditor
+
+Description:
+Hi IT,
+
+I'm trying to access dropbox.com from my work laptop to upload some audit working papers for our external auditor at KPMG. When I try to load the site in Chrome, I get a Zscaler block page that says:
+
+  "Access Denied — Cloud Storage policy"
+  "If you believe this is an error, please contact your IT Service Desk."
+  "Reference: rule cloud-storage"
+
+I checked with my manager (Mark Chen) and he confirmed that we are allowed to use Dropbox for business files. He pointed me to the Acceptable Use Policy on SharePoint, which lists Dropbox Business under approved cloud storage tools (section 4.2).
+
+The Dropbox desktop client on my laptop also shows "Connecting..." and never syncs. I tried restarting it twice.
+
+Can you please unblock Dropbox for me? I have an audit working-paper review due Friday and KPMG can only receive files via Dropbox (they don't support our Microsoft 365 external sharing because of their own controls).
+
+Steps I have tried:
+1. Chrome incognito mode — same block page.
+2. Edge browser — same block page.
+3. Restarted the Dropbox desktop client twice.
+4. Verified my account is logged in to Dropbox Business (the Cedar Mutual tenant), not personal.
+5. Asked Mark Chen to confirm I should be able to access this — he confirmed I should.
+
+Attachments:
+- block-page-screenshot.png
+- dropbox-client-stuck.png
+
+Thanks,
+Jane Doe
+Senior Auditor, External Audit Liaison
+jdoe@cedarmutual.com  ·  +1 860 555 0142
