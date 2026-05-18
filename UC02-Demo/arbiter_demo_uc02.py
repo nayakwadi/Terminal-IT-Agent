@@ -48,10 +48,14 @@ REGION = os.getenv("AWS_REGION", "us-east-1")
 _VALID_PROVIDERS = {"anthropic", "bedrock_nova", "bedrock_claude"}
 _provider = os.getenv("LLM_PROVIDER", "").lower().strip()
 if not _provider:
-    if os.getenv("USE_ANTHROPIC_API", "").lower() == "true":
+    if os.getenv("USE_ANTHROPIC_API", "").lower() == "true" or os.getenv("ANTHROPIC_API_KEY"):
         _provider = "anthropic"
+    elif os.getenv("BEDROCK_NOVA_MODEL_ID"):
+        _provider = "bedrock_nova"
+    elif os.getenv("BEDROCK_MODEL_ID"):
+        _provider = "bedrock_claude"
     else:
-        _provider = "anthropic"
+        _provider = "bedrock_nova"
 if _provider not in _VALID_PROVIDERS:
     sys.exit(
         f"ERROR: invalid LLM_PROVIDER '{_provider}'. "

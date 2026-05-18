@@ -1,0 +1,17 @@
+Usage Instructions
+Save the CloudFormation template as bedrock-kb-template.yaml
+Make scripts executable: chmod +x *.sh
+Deploy infrastructure: ./deploy-bedrock-kb.sh my-project us-east-1
+Upload documents: ./upload-and-sync.sh my-project-infrastructure ./my-documents us-east-1
+Test the knowledge base: ./test-knowledge-base.sh my-project-infrastructure "What is AWS?" us-east-1
+Clean up when done: ./cleanup.sh my-project-infrastructure us-east-1
+Key Features of These Scripts
+Parameterized and reusable across different projects and regions
+Complete infrastructure including S3, IAM roles, OpenSearch Serverless, and Bedrock Knowledge Base
+Security best practices with proper IAM policies and S3 encryption
+Automated document upload and indexing
+Built-in testing capabilities
+Easy cleanup to avoid ongoing costs
+Error handling and status monitoring
+Console deep links for easy management
+These scripts recreate your current infrastructure in a reusable, parameterized way that you can deploy across different environments and projects.

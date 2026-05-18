@@ -1,0 +1,295 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Reusable Amazon Bedrock Knowledge Base Infrastructure with S3 and IAM Roles"
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: "bedrock-kb"
+    Description: "Project name prefix for all resources"
+
+  S3BucketPrefix:
+    Type: String
+    Default: "my-bedrock-files"
+    Description: "Prefix for S3 bucket names (will be made unique)"
+
+  EmbeddingModelId:
+    Type: String
+    Default: "amazon.titan-embed-text-v2:0"
+    Description: "Bedrock embedding model for the knowledge base"
+    AllowedValues:
+      - "amazon.titan-embed-text-v1"
+      - "amazon.titan-embed-text-v2:0"
+      - "cohere.embed-english-v3"
+      - "cohere.embed-multilingual-v3"
+
+  ChunkingStrategy:
+    Type: String
+    Default: "FIXED_SIZE"
+    Description: "Chunking strategy for document processing"
+    AllowedValues:
+      - "FIXED_SIZE"
+      - "NONE"
+
+  MaxTokens:
+    Type: Number
+    Default: 300
+    Description: "Maximum tokens per chunk"
+    MinValue: 1
+    MaxValue: 8192
+
+  OverlapPercentage:
+    Type: Number
+    Default: 20
+    Description: "Overlap percentage between chunks"
+    MinValue: 1
+    MaxValue: 99
+
+Resources:
+  # S3 Bucket for Knowledge Base Files
+  KnowledgeBaseFilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${S3BucketPrefix}-${AWS::AccountId}-${AWS::Region}"
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      NotificationConfiguration:
+        CloudWatchConfigurations:
+          - Event: "s3:ObjectCreated:*"
+            CloudWatchConfiguration:
+              LogGroupName: !Ref S3LogGroup
+
+  # CloudWatch Log Group for S3 Events
+  S3LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/s3/${ProjectName}-bucket-events"
+      RetentionInDays: 30
+
+  # IAM Role for Bedrock Knowledge Base
+  BedrockKnowledgeBaseRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "AmazonBedrockExecutionRoleForKnowledgeBase-${ProjectName}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                "aws:SourceAccount": !Ref "AWS::AccountId"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonBedrockFullAccess
+      Policies:
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt KnowledgeBaseFilesBucket.Arn
+                  - !Sub "${KnowledgeBaseFilesBucket.Arn}/*"
+        - PolicyName: BedrockModelAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/*"
+        - PolicyName: OpenSearchServerlessAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - aoss:APIAccessAll
+                Resource: !GetAtt OpenSearchCollection.Arn
+
+  # OpenSearch Serverless Collection
+  OpenSearchCollection:
+    Type: AWS::OpenSearchServerless::Collection
+    Properties:
+      Name: !Sub "${ProjectName}-collection"
+      Type: VECTORSEARCH
+      Description: "Vector collection for Bedrock Knowledge Base"
+
+  # OpenSearch Serverless Security Policy
+  OpenSearchSecurityPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: !Sub "${ProjectName}-security-policy"
+      Type: encryption
+      Policy: !Sub |
+        {
+          "Rules": [
+            {
+              "ResourceType": "collection",
+              "Resource": ["collection/${ProjectName}-collection"]
+            }
+          ],
+          "AWSOwnedKey": true
+        }
+
+  # OpenSearch Network Policy
+  OpenSearchNetworkPolicy:
+    Type: AWS::OpenSearchServerless::SecurityPolicy
+    Properties:
+      Name: !Sub "${ProjectName}-network-policy"
+      Type: network
+      Policy: !Sub |
+        [
+          {
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${ProjectName}-collection"]
+              },
+              {
+                "ResourceType": "dashboard",
+                "Resource": ["collection/${ProjectName}-collection"]
+              }
+            ],
+            "AllowFromPublic": true
+          }
+        ]
+
+  # OpenSearch Data Access Policy
+  OpenSearchDataAccessPolicy:
+    Type: AWS::OpenSearchServerless::AccessPolicy
+    Properties:
+      Name: !Sub "${ProjectName}-data-access-policy"
+      Type: data
+      Policy: !Sub |
+        [
+          {
+            "Rules": [
+              {
+                "ResourceType": "collection",
+                "Resource": ["collection/${ProjectName}-collection"],
+                "Permission": [
+                  "aoss:CreateCollectionItems",
+                  "aoss:DeleteCollectionItems",
+                  "aoss:UpdateCollectionItems",
+                  "aoss:DescribeCollectionItems"
+                ]
+              },
+              {
+                "ResourceType": "index",
+                "Resource": ["index/${ProjectName}-collection/*"],
+                "Permission": [
+                  "aoss:CreateIndex",
+                  "aoss:DeleteIndex",
+                  "aoss:UpdateIndex",
+                  "aoss:DescribeIndex",
+                  "aoss:ReadDocument",
+                  "aoss:WriteDocument"
+                ]
+              }
+            ],
+            "Principal": ["${BedrockKnowledgeBaseRole.Arn}"]
+          }
+        ]
+
+  # Bedrock Knowledge Base
+  BedrockKnowledgeBase:
+    Type: AWS::Bedrock::KnowledgeBase
+    DependsOn:
+      - OpenSearchCollection
+      - OpenSearchDataAccessPolicy
+    Properties:
+      Name: !Sub "${ProjectName}-knowledge-base"
+      Description: "Reusable Bedrock Knowledge Base for document processing"
+      RoleArn: !GetAtt BedrockKnowledgeBaseRole.Arn
+      KnowledgeBaseConfiguration:
+        Type: VECTOR
+        VectorKnowledgeBaseConfiguration:
+          EmbeddingModelArn: !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/${EmbeddingModelId}"
+          EmbeddingModelConfiguration:
+            BedrockEmbeddingModelConfiguration:
+              Dimensions: 1024
+      StorageConfiguration:
+        Type: OPENSEARCH_SERVERLESS
+        OpensearchServerlessConfiguration:
+          CollectionArn: !GetAtt OpenSearchCollection.Arn
+          VectorIndexName: !Sub "${ProjectName}-vector-index"
+          FieldMapping:
+            VectorField: "bedrock-knowledge-base-default-vector"
+            TextField: "AMAZON_BEDROCK_TEXT"
+            MetadataField: "AMAZON_BEDROCK_METADATA"
+
+  # Bedrock Data Source
+  BedrockDataSource:
+    Type: AWS::Bedrock::DataSource
+    Properties:
+      Name: !Sub "${ProjectName}-s3-data-source"
+      Description: "S3 data source for knowledge base"
+      KnowledgeBaseId: !Ref BedrockKnowledgeBase
+      DataSourceConfiguration:
+        Type: S3
+        S3Configuration:
+          BucketArn: !GetAtt KnowledgeBaseFilesBucket.Arn
+          InclusionPrefixes:
+            - "documents/"
+      ChunkingConfiguration:
+        ChunkingStrategy: !Ref ChunkingStrategy
+        FixedSizeChunkingConfiguration:
+          MaxTokens: !Ref MaxTokens
+          OverlapPercentage: !Ref OverlapPercentage
+
+Outputs:
+  KnowledgeBaseId:
+    Description: "Bedrock Knowledge Base ID"
+    Value: !Ref BedrockKnowledgeBase
+    Export:
+      Name: !Sub "${AWS::StackName}-KnowledgeBaseId"
+
+  KnowledgeBaseArn:
+    Description: "Bedrock Knowledge Base ARN"
+    Value: !GetAtt BedrockKnowledgeBase.KnowledgeBaseArn
+    Export:
+      Name: !Sub "${AWS::StackName}-KnowledgeBaseArn"
+
+  S3BucketName:
+    Description: "S3 Bucket for Knowledge Base files"
+    Value: !Ref KnowledgeBaseFilesBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketName"
+
+  S3BucketArn:
+    Description: "S3 Bucket ARN"
+    Value: !GetAtt KnowledgeBaseFilesBucket.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketArn"
+
+  IAMRoleArn:
+    Description: "IAM Role ARN for Bedrock Knowledge Base"
+    Value: !GetAtt BedrockKnowledgeBaseRole.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-IAMRoleArn"
+
+  OpenSearchCollectionArn:
+    Description: "OpenSearch Serverless Collection ARN"
+    Value: !GetAtt OpenSearchCollection.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-OpenSearchCollectionArn"
+
+  DataSourceId:
+    Description: "Bedrock Data Source ID"
+    Value: !Ref BedrockDataSource
+    Export:
+      Name: !Sub "${AWS::StackName}-DataSourceId"

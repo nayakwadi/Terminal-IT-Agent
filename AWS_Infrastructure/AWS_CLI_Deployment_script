@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Bedrock Knowledge Base Infrastructure Deployment Script
+# Usage: ./deploy-bedrock-kb.sh [project-name] [region]
+
+set -e
+
+# Configuration
+PROJECT_NAME=${1:-"my-bedrock-kb"}
+AWS_REGION=${2:-"us-east-1"}
+STACK_NAME="${PROJECT_NAME}-infrastructure"
+TEMPLATE_FILE="bedrock-kb-template.yaml"
+
+echo "🚀 Deploying Bedrock Knowledge Base Infrastructure"
+echo "Project Name: $PROJECT_NAME"
+echo "Region: $AWS_REGION"
+echo "Stack Name: $STACK_NAME"
+
+# Check if AWS CLI is configured
+if ! aws sts get-caller-identity &>/dev/null; then
+    echo "❌ AWS CLI not configured. Please run 'aws configure' first."
+    exit 1
+fi
+
+# Deploy CloudFormation stack
+echo "📦 Deploying CloudFormation stack..."
+aws cloudformation deploy \
+    --template-file "$TEMPLATE_FILE" \
+    --stack-name "$STACK_NAME" \
+    --parameter-overrides \
+        ProjectName="$PROJECT_NAME" \
+        S3BucketPrefix="${PROJECT_NAME}-files" \
+        EmbeddingModelId="amazon.titan-embed-text-v2:0" \
+        ChunkingStrategy="FIXED_SIZE" \
+        MaxTokens=300 \
+        OverlapPercentage=20 \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --region "$AWS_REGION"
+
+# Get stack outputs
+echo "📋 Retrieving stack outputs..."
+KNOWLEDGE_BASE_ID=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`KnowledgeBaseId`].OutputValue' \
+    --output text)
+
+S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' \
+    --output text)
+
+echo "✅ Deployment completed successfully!"
+echo ""
+echo "📊 Infrastructure Details:"
+echo "Knowledge Base ID: $KNOWLEDGE_BASE_ID"
+echo "S3 Bucket Name: $S3_BUCKET_NAME"
+echo ""
+echo "🔗 Quick Links:"
+echo "Bedrock Console: https://console.aws.amazon.com/bedrock/home?region=$AWS_REGION#/knowledge-bases/$KNOWLEDGE_BASE_ID"
+echo "S3 Console: https://console.aws.amazon.com/s3/buckets/$S3_BUCKET_NAME?region=$AWS_REGION"
+echo ""
+echo "📝 Next Steps:"
+echo "1. Upload documents to s3://$S3_BUCKET_NAME/documents/"
+echo "2. Sync the data source to ingest documents"
+echo "3. Test the knowledge base with queries"

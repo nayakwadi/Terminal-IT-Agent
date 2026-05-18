@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Document Upload and Knowledge Base Sync Script
+# Usage: ./upload-and-sync.sh [stack-name] [documents-folder] [region]
+
+set -e
+
+STACK_NAME=${1:-"my-bedrock-kb-infrastructure"}
+DOCUMENTS_FOLDER=${2:-"./documents"}
+AWS_REGION=${3:-"us-east-1"}
+
+echo "📁 Uploading documents and syncing Knowledge Base"
+
+# Get stack outputs
+S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' \
+    --output text)
+
+KNOWLEDGE_BASE_ID=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`KnowledgeBaseId`].OutputValue' \
+    --output text)
+
+DATA_SOURCE_ID=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`DataSourceId`].OutputValue' \
+    --output text)
+
+if [ ! -d "$DOCUMENTS_FOLDER" ]; then
+    echo "❌ Documents folder '$DOCUMENTS_FOLDER' not found"
+    exit 1
+fi
+
+# Upload documents to S3
+echo "⬆️ Uploading documents to S3..."
+aws s3 sync "$DOCUMENTS_FOLDER" "s3://$S3_BUCKET_NAME/documents/" \
+    --region "$AWS_REGION" \
+    --exclude ".*" \
+    --include "*.pdf" \
+    --include "*.txt" \
+    --include "*.md" \
+    --include "*.docx" \
+    --include "*.html"
+
+# Start data source sync
+echo "🔄 Starting Knowledge Base data source sync..."
+INGESTION_JOB_ID=$(aws bedrock-agent start-ingestion-job \
+    --knowledge-base-id "$KNOWLEDGE_BASE_ID" \
+    --data-source-id "$DATA_SOURCE_ID" \
+    --region "$AWS_REGION" \
+    --query 'ingestionJob.ingestionJobId' \
+    --output text)
+
+echo "📊 Ingestion Job ID: $INGESTION_JOB_ID"
+echo "⏳ Monitoring ingestion progress..."
+
+# Monitor ingestion job
+while true; do
+    STATUS=$(aws bedrock-agent get-ingestion-job \
+        --knowledge-base-id "$KNOWLEDGE_BASE_ID" \
+        --data-source-id "$DATA_SOURCE_ID" \
+        --ingestion-job-id "$INGESTION_JOB_ID" \
+        --region "$AWS_REGION" \
+        --query 'ingestionJob.status' \
+        --output text)
+    
+    echo "Status: $STATUS"
+    
+    if [ "$STATUS" = "COMPLETE" ]; then
+        echo "✅ Ingestion completed successfully!"
+        break
+    elif [ "$STATUS" = "FAILED" ]; then
+        echo "❌ Ingestion failed!"
+        exit 1
+    fi
+    
+    sleep 30
+done
+
+echo "🎉 Documents uploaded and indexed successfully!"

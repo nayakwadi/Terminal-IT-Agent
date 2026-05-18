@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Knowledge Base Testing Script
+# Usage: ./test-knowledge-base.sh [stack-name] [query] [region]
+
+set -e
+
+STACK_NAME=${1:-"my-bedrock-kb-infrastructure"}
+QUERY=${2:-"What is this document about?"}
+AWS_REGION=${3:-"us-east-1"}
+
+echo "🧪 Testing Knowledge Base with query: '$QUERY'"
+
+# Get Knowledge Base ID
+KNOWLEDGE_BASE_ID=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`KnowledgeBaseId`].OutputValue' \
+    --output text)
+
+# Test retrieve
+echo "🔍 Testing retrieve operation..."
+aws bedrock-agent-runtime retrieve \
+    --knowledge-base-id "$KNOWLEDGE_BASE_ID" \
+    --retrieval-query text="$QUERY" \
+    --region "$AWS_REGION" \
+    --query 'retrievalResults[*].{Score:score,Content:content.text}' \
+    --output table
+
+# Test retrieve and generate
+echo "🤖 Testing retrieve and generate operation..."
+aws bedrock-agent-runtime retrieve-and-generate \
+    --input text="$QUERY" \
+    --retrieve-and-generate-configuration '{
+        "type": "KNOWLEDGE_BASE",
+        "knowledgeBaseConfiguration": {
+            "knowledgeBaseId": "'$KNOWLEDGE_BASE_ID'",
+            "modelArn": "arn:aws:bedrock:'$AWS_REGION'::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+        }
+    }' \
+    --region "$AWS_REGION" \
+    --query 'output.text' \
+    --output text

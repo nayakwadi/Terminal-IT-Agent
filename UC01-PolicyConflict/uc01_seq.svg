@@ -1,0 +1,177 @@
+<svg viewBox="0 0 1600 1200" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0F4C81"/>
+    </marker>
+    <marker id="arBack" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#666"/>
+    </marker>
+    <marker id="arGuard" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#E07B00"/>
+    </marker>
+    <style>
+      .title { font-size: 24px; font-weight: 700; fill: #1A1A1A; }
+      .sub { font-size: 13px; fill: #555; }
+      .lane { font-size: 13px; font-weight: 700; fill: #FFFFFF; }
+      .lane-sub { font-size: 10px; fill: #FFFFFF; }
+      .step-num { font-size: 12px; font-weight: 700; fill: #FFFFFF; }
+      .step-label { font-size: 12px; fill: #1A1A1A; }
+      .mono { font-size: 11px; fill: #1A1A1A; font-family: Consolas, 'Courier New', monospace; }
+      .self-call { font-size: 11px; fill: #1A1A1A; font-style: italic; }
+      .path-label { font-size: 14px; font-weight: 700; }
+      .legend { font-size: 11px; fill: #666; }
+    </style>
+  </defs>
+
+  <text x="40" y="40" class="title">Terminal IT Agent UC-01: runtime sequence (three paths)</text>
+  <text x="40" y="62" class="sub">Each helpdesk ticket goes through retrieve → reason. The reasoning step branches into three outcomes shown in three columns below the shared steps.</text>
+
+  <!-- Lifelines header (6 lanes) -->
+  <g>
+    <rect x="60" y="90" width="200" height="46" rx="6" fill="#0F4C81"/>
+    <text x="160" y="111" text-anchor="middle" class="lane">User / Service Desk</text>
+    <text x="160" y="127" text-anchor="middle" class="lane-sub">creates ticket</text>
+    <line x1="160" y1="140" x2="160" y2="1150" stroke="#0F4C81" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+    <rect x="280" y="90" width="220" height="46" rx="6" fill="#0F4C81"/>
+    <text x="390" y="111" text-anchor="middle" class="lane">Agent script (Lambda 1.5)</text>
+    <text x="390" y="127" text-anchor="middle" class="lane-sub">arbiter_demo_uc01.py</text>
+    <line x1="390" y1="140" x2="390" y2="1150" stroke="#0F4C81" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+    <rect x="520" y="90" width="220" height="46" rx="6" fill="#0F4C81"/>
+    <text x="630" y="111" text-anchor="middle" class="lane">Bedrock Knowledge Base</text>
+    <text x="630" y="127" text-anchor="middle" class="lane-sub">retrieve API (managed RAG)</text>
+    <line x1="630" y1="140" x2="630" y2="1150" stroke="#0F4C81" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+    <rect x="760" y="90" width="220" height="46" rx="6" fill="#E07B00"/>
+    <text x="870" y="111" text-anchor="middle" class="lane">Bedrock Guardrails</text>
+    <text x="870" y="127" text-anchor="middle" class="lane-sub">applied by Converse</text>
+    <line x1="870" y1="140" x2="870" y2="1150" stroke="#E07B00" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+    <rect x="1000" y="90" width="240" height="46" rx="6" fill="#0F4C81"/>
+    <text x="1120" y="111" text-anchor="middle" class="lane">Foundation Model</text>
+    <text x="1120" y="127" text-anchor="middle" class="lane-sub">Anthropic API or Bedrock FM</text>
+    <line x1="1120" y1="140" x2="1120" y2="1150" stroke="#0F4C81" stroke-width="1.2" stroke-dasharray="4 4"/>
+
+    <rect x="1260" y="90" width="280" height="46" rx="6" fill="#5E35B1"/>
+    <text x="1400" y="111" text-anchor="middle" class="lane">MS Teams Workflows + channel</text>
+    <text x="1400" y="127" text-anchor="middle" class="lane-sub">webhook + Adaptive Card</text>
+    <line x1="1400" y1="140" x2="1400" y2="1150" stroke="#5E35B1" stroke-width="1.2" stroke-dasharray="4 4"/>
+  </g>
+
+  <!-- ===== Common preamble: steps 1-5 ===== -->
+  <text x="40" y="170" class="path-label" fill="#0F4C81">Common preamble (same for all three paths)</text>
+
+  <!-- Step 1: User → Agent -->
+  <circle cx="160" cy="200" r="13" fill="#0F4C81"/>
+  <text x="160" y="204" text-anchor="middle" class="step-num">1</text>
+  <line x1="173" y1="200" x2="377" y2="200" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="195" y="193" class="mono">analyze --ticket FILE.txt</text>
+
+  <!-- Step 2: Agent self-call (read + extract id) -->
+  <circle cx="390" cy="240" r="13" fill="#0F4C81"/>
+  <text x="390" y="244" text-anchor="middle" class="step-num">2</text>
+  <path d="M 403 240 C 440 240 440 270 403 270" stroke="#666" stroke-width="1.5" fill="none" marker-end="url(#arBack)"/>
+  <text x="450" y="245" class="self-call">read ticket, extract id (INC...), build query</text>
+
+  <!-- Step 3: Agent → KB -->
+  <circle cx="390" cy="300" r="13" fill="#0F4C81"/>
+  <text x="390" y="304" text-anchor="middle" class="step-num">3</text>
+  <line x1="403" y1="300" x2="617" y2="300" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="420" y="293" class="mono">retrieve(KB_ID, query, top_k=5)</text>
+
+  <!-- Step 4: KB → Agent -->
+  <circle cx="630" cy="345" r="13" fill="#0F4C81"/>
+  <text x="630" y="349" text-anchor="middle" class="step-num">4</text>
+  <line x1="617" y1="345" x2="405" y2="345" stroke="#666" stroke-width="1.5" marker-end="url(#arBack)"/>
+  <text x="420" y="338" class="step-label">5 chunks with scores + S3 source URIs</text>
+
+  <!-- Step 5: Agent → FM (with guardrail config attached on Bedrock paths) -->
+  <circle cx="390" cy="395" r="13" fill="#0F4C81"/>
+  <text x="390" y="399" text-anchor="middle" class="step-num">5</text>
+  <line x1="403" y1="395" x2="857" y2="395" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <line x1="403" y1="412" x2="1107" y2="412" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="420" y="388" class="mono">converse(prompt + chunks, guardrailConfig=...)</text>
+  <text x="900" y="412" class="step-label" font-style="italic">applied first (input scan)</text>
+
+  <!-- Divider line between common preamble and branches -->
+  <line x1="60" y1="445" x2="1540" y2="445" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ===== PATH A: Cross-domain conflict detected ===== -->
+  <text x="40" y="475" class="path-label" fill="#1A7A1A">Path A — cross-domain conflict detected (UC0012345 ticket: Dropbox blocked, AUP permits)</text>
+
+  <!-- A.6 Guardrail passes (input ok) -->
+  <circle cx="870" cy="505" r="13" fill="#1A7A1A"/>
+  <text x="870" y="509" text-anchor="middle" class="step-num">A6</text>
+  <path d="M 883 505 C 920 505 920 535 883 535" stroke="#1A7A1A" stroke-width="1.5" fill="none" marker-end="url(#arBack)"/>
+  <text x="935" y="510" class="self-call" fill="#1A7A1A">guardrail input scan passes → forward to FM</text>
+
+  <!-- A.7 FM responds -->
+  <circle cx="1120" cy="555" r="13" fill="#1A7A1A"/>
+  <text x="1120" y="559" text-anchor="middle" class="step-num">A7</text>
+  <line x1="1107" y1="555" x2="403" y2="555" stroke="#666" stroke-width="1.5" marker-end="url(#arBack)"/>
+  <text x="420" y="548" class="step-label">JSON: conflict_detected=true, policy_a=SharePoint AUP, policy_b=Zscaler rule, severity=high</text>
+
+  <!-- A.8 Agent parses + posts to Teams -->
+  <circle cx="390" cy="600" r="13" fill="#1A7A1A"/>
+  <text x="390" y="604" text-anchor="middle" class="step-num">A8</text>
+  <line x1="403" y1="600" x2="1257" y2="600" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="420" y="593" class="mono">POST teams webhook (red-bordered Adaptive Card)</text>
+
+  <circle cx="1400" cy="640" r="13" fill="#5E35B1"/>
+  <text x="1400" y="644" text-anchor="middle" class="step-num">A9</text>
+  <line x1="1387" y1="640" x2="403" y2="640" stroke="#666" stroke-width="1.5" marker-end="url(#arBack)"/>
+  <text x="420" y="633" class="step-label">HTTP 202 (accepted; card lands in channel within ~10s)</text>
+
+  <!-- Divider -->
+  <line x1="60" y1="670" x2="1540" y2="670" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ===== PATH B: No conflict ===== -->
+  <text x="40" y="700" class="path-label" fill="#0F4C81">Path B — no conflict (UC0012789 ticket: Dropbox sync error, no policy involved)</text>
+
+  <circle cx="870" cy="730" r="13" fill="#0F4C81"/>
+  <text x="870" y="734" text-anchor="middle" class="step-num">B6</text>
+  <path d="M 883 730 C 920 730 920 760 883 760" stroke="#0F4C81" stroke-width="1.5" fill="none" marker-end="url(#arBack)"/>
+  <text x="935" y="735" class="self-call">guardrail input scan passes → forward to FM</text>
+
+  <circle cx="1120" cy="780" r="13" fill="#0F4C81"/>
+  <text x="1120" y="784" text-anchor="middle" class="step-num">B7</text>
+  <line x1="1107" y1="780" x2="403" y2="780" stroke="#666" stroke-width="1.5" marker-end="url(#arBack)"/>
+  <text x="420" y="773" class="step-label">JSON: conflict_detected=false, severity=informational, recommendation="likely sync client / VPN issue"</text>
+
+  <circle cx="390" cy="825" r="13" fill="#0F4C81"/>
+  <text x="390" y="829" text-anchor="middle" class="step-num">B8</text>
+  <line x1="403" y1="825" x2="1257" y2="825" stroke="#0F4C81" stroke-width="2" marker-end="url(#ar2)"/>
+  <text x="420" y="818" class="mono">POST teams webhook (green-bordered card, no Policy A/B sections)</text>
+
+  <!-- Divider -->
+  <line x1="60" y1="855" x2="1540" y2="855" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ===== PATH C: Guardrail intervention ===== -->
+  <text x="40" y="885" class="path-label" fill="#A35200">Path C — guardrail intervention (UC0013021 SSL bypass request; UC0013055 credential sharing)</text>
+
+  <circle cx="870" cy="915" r="13" fill="#E07B00"/>
+  <text x="870" y="919" text-anchor="middle" class="step-num">C6</text>
+  <path d="M 883 915 C 940 915 940 950 883 950" stroke="#E07B00" stroke-width="1.5" fill="none" marker-end="url(#arGuard)"/>
+  <text x="950" y="920" class="self-call" fill="#A35200">guardrail blocks: denied topic match OR sensitive info detected</text>
+
+  <circle cx="870" cy="970" r="13" fill="#E07B00"/>
+  <text x="870" y="974" text-anchor="middle" class="step-num">C7</text>
+  <line x1="857" y1="970" x2="403" y2="970" stroke="#E07B00" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arGuard)"/>
+  <text x="420" y="963" class="step-label">Converse returns stopReason="guardrail_intervened" + outputAssessments trace</text>
+
+  <circle cx="390" cy="1015" r="13" fill="#E07B00"/>
+  <text x="390" y="1019" text-anchor="middle" class="step-num">C8</text>
+  <path d="M 403 1015 C 460 1015 460 1050 403 1050" stroke="#E07B00" stroke-width="1.5" fill="none" marker-end="url(#arGuard)"/>
+  <text x="470" y="1020" class="self-call" fill="#A35200">build synthetic finding: severity=critical, recommend escalation to IT Security</text>
+  <text x="470" y="1035" class="self-call" fill="#A35200">print outputAssessments trace to stdout for CloudWatch capture</text>
+
+  <circle cx="390" cy="1080" r="13" fill="#E07B00"/>
+  <text x="390" y="1084" text-anchor="middle" class="step-num">C9</text>
+  <line x1="403" y1="1080" x2="1257" y2="1080" stroke="#E07B00" stroke-width="2" marker-end="url(#arGuard)"/>
+  <text x="420" y="1073" class="mono" fill="#A35200">POST teams webhook (red-bordered card; title: GUARDRAIL — ESCALATE)</text>
+
+  <!-- Note about anthropic path -->
+  <rect x="60" y="1115" width="1480" height="30" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+  <text x="80" y="1135" class="legend">Note: when LLM_PROVIDER=anthropic the Guardrails lane is bypassed (Anthropic API does not honor Bedrock guardrails). Use bedrock_nova or bedrock_claude in production for guardrail enforcement.</text>
+</svg>

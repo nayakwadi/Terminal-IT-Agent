@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Cleanup Script for Bedrock Knowledge Base Infrastructure
+# Usage: ./cleanup.sh [stack-name] [region]
+
+set -e
+
+STACK_NAME=${1:-"my-bedrock-kb-infrastructure"}
+AWS_REGION=${2:-"us-east-1"}
+
+echo "🧹 Cleaning up Bedrock Knowledge Base Infrastructure"
+echo "Stack Name: $STACK_NAME"
+echo "Region: $AWS_REGION"
+
+# Get S3 bucket name before deletion
+S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION" \
+    --query 'Stacks[0].Outputs[?OutputKey==`S3BucketName`].OutputValue' \
+    --output text 2>/dev/null || echo "")
+
+# Empty S3 bucket if it exists
+if [ ! -z "$S3_BUCKET_NAME" ]; then
+    echo "🗑️ Emptying S3 bucket: $S3_BUCKET_NAME"
+    aws s3 rm "s3://$S3_BUCKET_NAME" --recursive --region "$AWS_REGION" || true
+fi
+
+# Delete CloudFormation stack
+echo "🗂️ Deleting CloudFormation stack..."
+aws cloudformation delete-stack \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION"
+
+echo "⏳ Waiting for stack deletion to complete..."
+aws cloudformation wait stack-delete-complete \
+    --stack-name "$STACK_NAME" \
+    --region "$AWS_REGION"
+
+echo "✅ Cleanup completed successfully!"
