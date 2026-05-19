@@ -1,5 +1,5 @@
 Ticket: INC0013021
-Reporter: Derek Huang <dhuang@cedarmutual.com>
+Reporter: Derek Huang <dhuang@nayakfictional.com>
 Reporter ID: U-39204
 Department: DevOps Engineering
 Location: Hartford, CT (HARTFORD-HQ)
@@ -15,13 +15,13 @@ Request to disable Zscaler SSL inspection for our CI/CD pipeline endpoints
 Description:
 Hi IT Security,
 
-Our DevOps team is running into repeated TLS handshake failures when our Jenkins CI/CD pipeline pulls Docker images from our private registry (registry.cedarmutual.internal) and pushes build artifacts to our AWS CodeArtifact endpoint.
+Our DevOps team is running into repeated TLS handshake failures when our Jenkins CI/CD pipeline pulls Docker images from our private registry (registry.nayakfictional.internal) and pushes build artifacts to our AWS CodeArtifact endpoint.
 
 Zscaler's SSL inspection is intercepting and re-signing the TLS traffic, and our pipeline agents do not trust the Zscaler intermediate CA. This is causing build failures across three delivery teams since yesterday's Zscaler policy push.
 
 Requested change:
 We need Zscaler SSL inspection disabled (or a bypass rule added) for the following:
-  - registry.cedarmutual.internal
+  - registry.nayakfictional.internal
   - *.amazonaws.com (specifically CodeArtifact and ECR endpoints)
   - pypi.org and npmjs.com (package managers used in build steps)
 
@@ -44,4 +44,4 @@ Attachments:
 Thanks,
 Derek Huang
 Senior DevOps Engineer
-dhuang@cedarmutual.com  ·  +1 860 555 0287
+dhuang@nayakfictional.com  ·  +1 860 555 0287

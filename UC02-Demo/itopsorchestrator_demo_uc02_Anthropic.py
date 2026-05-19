@@ -1,10 +1,10 @@
 """
-ARBITER POC — UC-02 Public Exposure Scan (demo build).
+ITOpsOrchestrator POC — UC-02 Public Exposure Scan (demo build).
 
 Three commands:
-  python arbiter_demo_uc02.py seed       # create three demo security groups
-  python arbiter_demo_uc02.py scan       # enumerate 0.0.0.0/0 rules + LLM severity + Teams alert
-  python arbiter_demo_uc02.py teardown   # delete the seeded demo security groups
+  python itopsorchestrator_demo_uc02.py seed       # create three demo security groups
+  python itopsorchestrator_demo_uc02.py scan       # enumerate 0.0.0.0/0 rules + LLM severity + Teams alert
+  python itopsorchestrator_demo_uc02.py teardown   # delete the seeded demo security groups
 
 Environment variables:
   TEAMS_WEBHOOK_URL          required for scan
@@ -15,7 +15,7 @@ Environment variables:
   BEDROCK_MODEL_ID           default claude-sonnet-4-6
   DEMO_VPC_ID                optional; if unset, uses the default VPC in the region
 
-Author: ARBITER POC build
+Author: ITOpsOrchestrator POC build
 """
 from __future__ import annotations
 
@@ -31,19 +31,19 @@ import botocore
 import requests
 
 REGION = os.getenv("AWS_REGION", "us-east-1")
-USE_ANTHROPIC = os.getenv("USE_ANTHROPIC_API", "false").lower()== "true"
+USE_ANTHROPIC = os.getenv("USE_ANTHROPIC_API", "false").lower() == "true"
 # Default to Claude Sonnet 4.6. Override via env var if you have access to a different model.
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-sonnet-4-6")
 TEAMS_WEBHOOK = os.getenv("TEAMS_WEBHOOK_URL", "")
 
-DEMO_TAG_KEY = "arbiter-demo"
+DEMO_TAG_KEY = "itopsorchestrator-demo"
 DEMO_TAG_VALUE = "uc02"
 
 DEMO_GROUPS = [
     {
-        "name": "arbiter-demo-ssh-open",
-        "description": "ARBITER demo: SSH open to world on a production-tagged SG (expect HIGH)",
+        "name": "itopsorchestrator-demo-ssh-open",
+        "description": "ITOpsOrchestrator demo: SSH open to world on a production-tagged SG (expect HIGH)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 22, "ToPort": 22, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: should flag high"}]},
         ],
@@ -55,8 +55,8 @@ DEMO_GROUPS = [
         ],
     },
     {
-        "name": "arbiter-demo-alb-https",
-        "description": "ARBITER demo: 443 open on an ALB-tagged SG (expect INFORMATIONAL)",
+        "name": "itopsorchestrator-demo-alb-https",
+        "description": "ITOpsOrchestrator demo: 443 open on an ALB-tagged SG (expect INFORMATIONAL)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: expected"}]},
         ],
@@ -68,8 +68,8 @@ DEMO_GROUPS = [
         ],
     },
     {
-        "name": "arbiter-demo-db-open",
-        "description": "ARBITER demo: MySQL open to world (expect CRITICAL)",
+        "name": "itopsorchestrator-demo-db-open",
+        "description": "ITOpsOrchestrator demo: MySQL open to world (expect CRITICAL)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 3306, "ToPort": 3306, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: should flag critical"}]},
         ],
@@ -278,7 +278,7 @@ def post_to_teams(scored: list[dict[str, Any]]) -> None:
                     "type": "TextBlock",
                     "size": "Large",
                     "weight": "Bolder",
-                    "text": f"ARBITER public exposure scan: {len(scored_sorted)} findings",
+                    "text": f"ITOpsOrchestrator public exposure scan: {len(scored_sorted)} findings",
                     "wrap": True,
                 },
                 {
@@ -370,7 +370,7 @@ def cmd_scan() -> None:
 # --- ENTRY ------------------------------------------------------------------
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ARBITER UC-02 demo")
+    ap = argparse.ArgumentParser(description="ITOpsOrchestrator UC-02 demo")
     ap.add_argument("cmd", choices=["seed", "scan", "teardown"])
     args = ap.parse_args()
     t0 = time.time()

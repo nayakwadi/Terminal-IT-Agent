@@ -1,4 +1,4 @@
-# ARBITER POC — UC-02: Public Exposure Scan
+# ITOpsOrchestrator POC — UC-02: Public Exposure Scan
 
 An AI-powered AWS security scanner that enumerates security group rules open to `0.0.0.0/0`, asks an LLM to score each finding by severity using port number, resource tags, and attached instances as context, and posts a color-coded Adaptive Card to Microsoft Teams.
 
@@ -26,9 +26,9 @@ Three seeded security groups produce a predictable demo:
 
 | Security Group | Port | Expected Severity |
 |---|---|---|
-| `arbiter-demo-db-open` | 3306/tcp | **CRITICAL** — MySQL open to world on a tier-1 database SG |
-| `arbiter-demo-ssh-open` | 22/tcp | **HIGH** — SSH from 0.0.0.0/0 on a production app-server SG |
-| `arbiter-demo-alb-https` | 443/tcp | **INFORMATIONAL** — HTTPS on an SG explicitly tagged `role=alb-public` |
+| `itopsorchestrator-demo-db-open` | 3306/tcp | **CRITICAL** — MySQL open to world on a tier-1 database SG |
+| `itopsorchestrator-demo-ssh-open` | 22/tcp | **HIGH** — SSH from 0.0.0.0/0 on a production app-server SG |
+| `itopsorchestrator-demo-alb-https` | 443/tcp | **INFORMATIONAL** — HTTPS on an SG explicitly tagged `role=alb-public` |
 
 ---
 
@@ -175,19 +175,19 @@ Set `LLM_PROVIDER` in `.env` to choose the inference backend:
 
 ### Step 1 — Seed demo security groups
 
-Creates three security groups tagged `arbiter-demo=uc02` in your account. Safe to run multiple times (duplicate names are skipped).
+Creates three security groups tagged `itopsorchestrator-demo=uc02` in your account. Safe to run multiple times (duplicate names are skipped).
 
 ```bash
-python arbiter_demo_uc02.py seed
+python itopsorchestrator_demo_uc02.py seed
 ```
 
 Expected output:
 
 ```
 Seeding demo SGs in VPC vpc-xxxxxxxxxx (region us-east-1)...
-  created sg-aaaaaaaaaa  arbiter-demo-ssh-open
-  created sg-bbbbbbbbbb  arbiter-demo-alb-https
-  created sg-cccccccccc  arbiter-demo-db-open
+  created sg-aaaaaaaaaa  itopsorchestrator-demo-ssh-open
+  created sg-bbbbbbbbbb  itopsorchestrator-demo-alb-https
+  created sg-cccccccccc  itopsorchestrator-demo-db-open
 Seed complete.
 ```
 
@@ -196,7 +196,7 @@ Seed complete.
 This is the single command you run during the demo.
 
 ```bash
-python arbiter_demo_uc02.py scan
+python itopsorchestrator_demo_uc02.py scan
 ```
 
 Expected output:
@@ -224,7 +224,7 @@ Elapsed: 8.3s
 ### Step 3 — Confirm the Teams card
 
 Switch to the Teams channel. You should see one Adaptive Card titled:
-**"ARBITER public exposure scan: 3 findings"**
+**"ITOpsOrchestrator public exposure scan: 3 findings"**
 
 The card header color reflects the top severity (red for CRITICAL). Each finding shows the SG ID, port, and one-sentence reason.
 
@@ -233,16 +233,16 @@ The card header color reflects the top severity (red for CRITICAL). Each finding
 Delete all seeded security groups to leave the account clean.
 
 ```bash
-python arbiter_demo_uc02.py teardown
+python itopsorchestrator_demo_uc02.py teardown
 ```
 
 Expected output:
 
 ```
 Deleting demo SGs in region us-east-1...
-  deleted sg-aaaaaaaaaa  arbiter-demo-ssh-open
-  deleted sg-bbbbbbbbbb  arbiter-demo-alb-https
-  deleted sg-cccccccccc  arbiter-demo-db-open
+  deleted sg-aaaaaaaaaa  itopsorchestrator-demo-ssh-open
+  deleted sg-bbbbbbbbbb  itopsorchestrator-demo-alb-https
+  deleted sg-cccccccccc  itopsorchestrator-demo-db-open
 Teardown complete.
 ```
 
@@ -265,15 +265,15 @@ Run through this before the demo, not during it:
 
 ```
 UC02-Demo/
-├── arbiter_demo_uc02.py            # Main script (recommended — all three providers)
-├── arbiter_demo_uc02_Anthropic.py  # Anthropic API-only variant
-├── arbiter_demo_uc02_bedrock_nova.py  # Bedrock Nova-only variant
+├── itopsorchestrator_demo_uc02.py            # Main script (recommended — all three providers)
+├── itopsorchestrator_demo_uc02_Anthropic.py  # Anthropic API-only variant
+├── itopsorchestrator_demo_uc02_bedrock_nova.py  # Bedrock Nova-only variant
 ├── requirements.txt                # Python dependencies
 ├── .env                            # Environment variables (do NOT commit)
 └── .env.example                    # Safe template to commit
 ```
 
-> Use `arbiter_demo_uc02.py` for all new work. The `_Anthropic` and `_bedrock_nova` variants are kept for reference only.
+> Use `itopsorchestrator_demo_uc02.py` for all new work. The `_Anthropic` and `_bedrock_nova` variants are kept for reference only.
 
 ---
 

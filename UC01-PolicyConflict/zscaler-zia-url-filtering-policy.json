@@ -1,13 +1,13 @@
 {
   "$schema": "https://help.zscaler.com/zia/api/url-filtering-policy",
   "exportInfo": {
-    "exportedFrom": "Cedar Mutual Insurance — ZIA Production Tenant",
-    "tenantId": "zscaler-cedarmutual-prod",
+    "exportedFrom": "Nayak Fictional Insurance — ZIA Production Tenant",
+    "tenantId": "zscaler-nayakfictional-prod",
     "exportedAt": "2026-04-02T14:18:43Z",
     "exportedBy": {
       "id": 482109,
       "name": "Priya Iyer",
-      "email": "piyer@cedarmutual.com",
+      "email": "piyer@nayakfictional.com",
       "role": "Network Security Admin"
     },
     "exportFormat": "ZIA URL Filtering Policy v6.3"
@@ -41,7 +41,7 @@
     "userAgentTypes": ["BROWSER", "OTHER"],
     "deviceTrustLevels": ["ANY"],
     "blockOverride": false,
-    "endUserNotificationUrl": "https://intranet.cedarmutual.com/it/access-blocked?rule=cloud-storage",
+    "endUserNotificationUrl": "https://intranet.nayakfictional.com/it/access-blocked?rule=cloud-storage",
     "ciparule": false,
     "validityStartTime": null,
     "validityEndTime": null,
@@ -83,14 +83,14 @@
     }
   },
   "downstreamEffect": {
-    "summary": "Cloud storage destinations resolve, TCP/443 connects, then Zscaler ZIA returns HTTP 403 with the end-user notification URL. End user sees the Cedar Mutual block page titled 'Access blocked — Cloud Storage policy'.",
+    "summary": "Cloud storage destinations resolve, TCP/443 connects, then Zscaler ZIA returns HTTP 403 with the end-user notification URL. End user sees the Nayak Fictional block page titled 'Access blocked — Cloud Storage policy'.",
     "exampleAffectedHosts": [
       "dropbox.com",
       "www.dropbox.com",
       "api.dropboxapi.com",
       "client.dropbox.com"
     ],
-    "exampleUserExperience": "When an employee browses to dropbox.com from any Cedar Mutual-managed device (on-network or via ZIA tunnel), the page is replaced with the Cedar Mutual block page. The Dropbox desktop client cannot sync; it shows 'Connecting...' indefinitely."
+    "exampleUserExperience": "When an employee browses to dropbox.com from any Nayak Fictional-managed device (on-network or via ZIA tunnel), the page is replaced with the Nayak Fictional block page. The Dropbox desktop client cannot sync; it shows 'Connecting...' indefinitely."
   },
   "relatedRules": [
     {
@@ -107,7 +107,7 @@
     }
   ],
   "notes": [
-    "This rule does not distinguish between Dropbox Business (Cedar Mutual tenant) and personal Dropbox. The Zscaler URL category CLOUD_STORAGE_AND_BACKUP groups all Dropbox-owned hostnames together.",
+    "This rule does not distinguish between Dropbox Business (Nayak Fictional tenant) and personal Dropbox. The Zscaler URL category CLOUD_STORAGE_AND_BACKUP groups all Dropbox-owned hostnames together.",
     "Carve-outs require either a custom URL category or a per-rule allow at a higher rank than this block rule. Neither exists for Dropbox Business as of the export date.",
     "Exception requests received in Q1 2026 referencing Dropbox: 14 tickets. All routed to Network Security via SR-NET-URL-EXC; none yet approved.",
     "Compliance owner: Information Security. Operational owner: Network Security."

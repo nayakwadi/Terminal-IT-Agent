@@ -1,32 +1,21 @@
 """
-ARBITER POC — UC-02 Public Exposure Scan (demo build).
+ITOpsOrchestrator POC — UC-02 Public Exposure Scan (demo build).
 
 Three commands:
-  python arbiter_demo_uc02.py seed       # create three demo security groups
-  python arbiter_demo_uc02.py scan       # enumerate 0.0.0.0/0 rules + LLM severity + Teams alert
-  python arbiter_demo_uc02.py teardown   # delete the seeded demo security groups
-
-LLM provider selection (pick one with LLM_PROVIDER; anthropic is the default):
-  LLM_PROVIDER=anthropic       (default)  Anthropic API direct, no AWS dependency for the LLM
-  LLM_PROVIDER=bedrock_nova               Amazon Nova on Bedrock (Converse API)
-  LLM_PROVIDER=bedrock_claude             Anthropic Claude on Bedrock (Converse API)
-  USE_ANTHROPIC_API=true                  legacy alias for LLM_PROVIDER=anthropic
+  python itopsorchestrator_demo_uc02.py seed       # create three demo security groups
+  python itopsorchestrator_demo_uc02.py scan       # enumerate 0.0.0.0/0 rules + LLM severity + Teams alert
+  python itopsorchestrator_demo_uc02.py teardown   # delete the seeded demo security groups
 
 Environment variables:
   TEAMS_WEBHOOK_URL          required for scan
   AWS_REGION                 default us-east-1
   AWS_PROFILE                optional, uses default profile otherwise
-  ANTHROPIC_API_KEY          required when LLM_PROVIDER=anthropic
-  ANTHROPIC_MODEL            default claude-sonnet-4-6 (Anthropic API)
-  BEDROCK_MODEL_ID           default anthropic.claude-sonnet-4-6 (Bedrock Claude)
-  BEDROCK_NOVA_MODEL_ID      default amazon.nova-lite-v1:0 (Bedrock Nova)
+  USE_ANTHROPIC_API          set to "true" to call Anthropic API instead of Bedrock
+  ANTHROPIC_API_KEY          required when USE_ANTHROPIC_API=true
+  BEDROCK_MODEL_ID           default claude-sonnet-4-6
   DEMO_VPC_ID                optional; if unset, uses the default VPC in the region
 
-IAM policy must include bedrock:InvokeModel on the chosen foundation-model
-ARNs when using either Bedrock path. The Converse API runs under the same
-bedrock:InvokeModel permission; there is no separate bedrock:Converse action.
-
-Author: ARBITER POC build
+Author: ITOpsOrchestrator POC build
 """
 from __future__ import annotations
 
@@ -42,41 +31,19 @@ import botocore
 import requests
 
 REGION = os.getenv("AWS_REGION", "us-east-1")
-
-# Provider resolution. LLM_PROVIDER wins; USE_ANTHROPIC_API is a legacy alias.
-# Default is "anthropic" so a fresh checkout works without AWS Bedrock model access.
-_VALID_PROVIDERS = {"anthropic", "bedrock_nova", "bedrock_claude"}
-_provider = os.getenv("LLM_PROVIDER", "").lower().strip()
-if not _provider:
-    if os.getenv("USE_ANTHROPIC_API", "").lower() == "true" or os.getenv("ANTHROPIC_API_KEY"):
-        _provider = "anthropic"
-    elif os.getenv("BEDROCK_NOVA_MODEL_ID"):
-        _provider = "bedrock_nova"
-    elif os.getenv("BEDROCK_MODEL_ID"):
-        _provider = "bedrock_claude"
-    else:
-        _provider = "bedrock_nova"
-if _provider not in _VALID_PROVIDERS:
-    sys.exit(
-        f"ERROR: invalid LLM_PROVIDER '{_provider}'. "
-        f"Must be one of: {sorted(_VALID_PROVIDERS)}"
-    )
-PROVIDER = _provider
-
-# Model identifiers (overridable per provider).
+USE_ANTHROPIC = os.getenv("USE_ANTHROPIC_API", "false").lower()== "true"
+# Default to Claude Sonnet 4.6. Override via env var if you have access to a different model.
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-sonnet-4-6")
-BEDROCK_NOVA_MODEL_ID = os.getenv("BEDROCK_NOVA_MODEL_ID", "amazon.nova-lite-v1:0")
-
 TEAMS_WEBHOOK = os.getenv("TEAMS_WEBHOOK_URL", "")
 
-DEMO_TAG_KEY = "arbiter-demo"
+DEMO_TAG_KEY = "itopsorchestrator-demo"
 DEMO_TAG_VALUE = "uc02"
 
 DEMO_GROUPS = [
     {
-        "name": "arbiter-demo-ssh-open",
-        "description": "ARBITER demo: SSH open to world on a production-tagged SG (expect HIGH)",
+        "name": "itopsorchestrator-demo-ssh-open",
+        "description": "ITOpsOrchestrator demo: SSH open to world on a production-tagged SG (expect HIGH)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 22, "ToPort": 22, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: should flag high"}]},
         ],
@@ -88,8 +55,8 @@ DEMO_GROUPS = [
         ],
     },
     {
-        "name": "arbiter-demo-alb-https",
-        "description": "ARBITER demo: 443 open on an ALB-tagged SG (expect INFORMATIONAL)",
+        "name": "itopsorchestrator-demo-alb-https",
+        "description": "ITOpsOrchestrator demo: 443 open on an ALB-tagged SG (expect INFORMATIONAL)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: expected"}]},
         ],
@@ -101,8 +68,8 @@ DEMO_GROUPS = [
         ],
     },
     {
-        "name": "arbiter-demo-db-open",
-        "description": "ARBITER demo: MySQL open to world (expect CRITICAL)",
+        "name": "itopsorchestrator-demo-db-open",
+        "description": "ITOpsOrchestrator demo: MySQL open to world (expect CRITICAL)",
         "rules": [
             {"IpProtocol": "tcp", "FromPort": 3306, "ToPort": 3306, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "demo: should flag critical"}]},
         ],
@@ -225,20 +192,9 @@ Severity guidance:
 Use the tags (env, role, data-class) and the attached resource type (LoadBalancer, EC2 instance) to drive the score. Be decisive. Return ONLY a JSON array, no commentary."""
 
 
-def reason_with_llm(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Score findings via the configured LLM provider.
-
-    Three providers, one return shape (parsed JSON array). Bedrock paths
-    use the Converse API so Claude and Nova share the same client code,
-    differing only by modelId.
-    """
-    user_msg = (
-        "Findings:\n"
-        + json.dumps(findings, indent=2)
-        + "\n\nReturn the JSON array now."
-    )
-
-    if PROVIDER == "anthropic":
+def reason_with_claude(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    user_msg = "Findings:\n" + json.dumps(findings, indent=2) + "\n\nReturn the JSON array now."
+    if USE_ANTHROPIC:
         from anthropic import Anthropic
         client = Anthropic()
         msg = client.messages.create(
@@ -249,20 +205,18 @@ def reason_with_llm(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
         )
         text = msg.content[0].text
     else:
-        # Bedrock path. Converse API normalizes Claude and Nova body shapes.
-        model_id = (
-            BEDROCK_NOVA_MODEL_ID if PROVIDER == "bedrock_nova" else BEDROCK_MODEL_ID
-        )
         bedrock = boto3.client("bedrock-runtime", region_name=REGION)
-        resp = bedrock.converse(
-            modelId=model_id,
-            messages=[{"role": "user", "content": [{"text": user_msg}]}],
-            system=[{"text": SYSTEM_PROMPT}],
-            inferenceConfig={"maxTokens": 4000, "temperature": 0},
-        )
-        text = resp["output"]["message"]["content"][0]["text"]
+        body = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 4000,
+            "system": SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": user_msg}],
+        }
+        resp = bedrock.invoke_model(modelId=BEDROCK_MODEL_ID, body=json.dumps(body))
+        out = json.loads(resp["body"].read())
+        text = out["content"][0]["text"]
 
-    # Strip code fences if the model wrapped the JSON
+    # Strip code fences if the model added them
     text = text.strip()
     if text.startswith("```"):
         text = text.split("```", 2)[1]
@@ -270,10 +224,6 @@ def reason_with_llm(findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
             text = text[4:]
         text = text.rsplit("```", 1)[0]
     return json.loads(text)
-
-
-# Backwards-compatible alias for anything that imports the old name.
-reason_with_claude = reason_with_llm
 
 
 # --- TEAMS POST -------------------------------------------------------------
@@ -328,7 +278,7 @@ def post_to_teams(scored: list[dict[str, Any]]) -> None:
                     "type": "TextBlock",
                     "size": "Large",
                     "weight": "Bolder",
-                    "text": f"ARBITER public exposure scan: {len(scored_sorted)} findings",
+                    "text": f"ITOpsOrchestrator public exposure scan: {len(scored_sorted)} findings",
                     "wrap": True,
                 },
                 {
@@ -336,14 +286,6 @@ def post_to_teams(scored: list[dict[str, Any]]) -> None:
                     "spacing": "Small",
                     "isSubtle": True,
                     "text": f"Top severity: {top_sev.upper()}  ·  Region: {REGION}",
-                    "wrap": True,
-                },
-                {
-                    "type": "TextBlock",
-                    "spacing": "None",
-                    "isSubtle": True,
-                    "size": "Small",
-                    "text": f"Scored by {_provider_label()}",
                     "wrap": True,
                 },
             ],
@@ -401,17 +343,9 @@ def post_to_teams(scored: list[dict[str, Any]]) -> None:
     print(f"Posted to Teams (HTTP {r.status_code}).")
 
 
-def _provider_label() -> str:
-    if PROVIDER == "anthropic":
-        return f"Anthropic API ({ANTHROPIC_MODEL})"
-    if PROVIDER == "bedrock_nova":
-        return f"Bedrock Nova ({BEDROCK_NOVA_MODEL_ID})"
-    return f"Bedrock Claude ({BEDROCK_MODEL_ID})"
-
-
 def cmd_scan() -> None:
-    print(f"Region:   {REGION}")
-    print(f"Provider: {_provider_label()}")
+    print(f"Region: {REGION}")
+    print(f"Model: {f'Anthropic API ({ANTHROPIC_MODEL})' if USE_ANTHROPIC else f'Bedrock ({BEDROCK_MODEL_ID})'}")
 
     print("\nStep 1/3  Enumerating security group rules open to 0.0.0.0/0...")
     findings = list_public_rules()
@@ -420,8 +354,8 @@ def cmd_scan() -> None:
         print("  Nothing to score. Run `seed` first or check the region.")
         return
 
-    print("\nStep 2/3  Scoring with the model...")
-    scored = reason_with_llm(findings)
+    print("\nStep 2/3  Scoring with Claude...")
+    scored = reason_with_claude(findings)
     print("\n=== Results ===")
     scored_sorted = sorted(scored, key=lambda f: SEVERITY_ORDER.index(f["severity"]))
     for f in scored_sorted:
@@ -436,7 +370,7 @@ def cmd_scan() -> None:
 # --- ENTRY ------------------------------------------------------------------
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ARBITER UC-02 demo")
+    ap = argparse.ArgumentParser(description="ITOpsOrchestrator UC-02 demo")
     ap.add_argument("cmd", choices=["seed", "scan", "teardown"])
     args = ap.parse_args()
     t0 = time.time()

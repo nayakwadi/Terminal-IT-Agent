@@ -1,4 +1,4 @@
-# ARBITER POC — UC-01: Policy Conflict Detection
+# ITOpsOrchestrator POC — UC-01: Policy Conflict Detection
 
 An AI-powered helpdesk agent that detects **cross-domain policy conflicts** — cases where a written policy permits an action that a technical control silently prevents (or vice versa).
 
@@ -172,7 +172,7 @@ source .env
 Run this first to confirm the KB is reachable and returning chunks:
 
 ```bash
-python arbiter_demo_uc01.py kb-check
+python itopsorchestrator_demo_uc01.py kb-check
 ```
 
 Expected output:
@@ -193,7 +193,7 @@ Probe retrieval for 'Is Dropbox approved for business use?':
 ### Analyze a helpdesk ticket
 
 ```bash
-python arbiter_demo_uc01.py analyze --ticket sample-tickets/ticket-INC0012345-dropbox-blocked.txt
+python itopsorchestrator_demo_uc01.py analyze --ticket sample-tickets/ticket-INC0012345-dropbox-blocked.txt
 ```
 
 The agent runs three steps and prints progress:
@@ -263,7 +263,7 @@ To inspect what was blocked, check **CloudWatch Logs** under the Bedrock guardra
 
 ```
 UC01-PolicyConflict/
-├── arbiter_demo_uc01.py          # Main agent script
+├── itopsorchestrator_demo_uc01.py          # Main agent script
 ├── requirements.txt              # Python dependencies
 ├── .env                          # Environment variables (do not commit)
 ├── .env.example                  # Safe template to commit
@@ -274,7 +274,7 @@ UC01-PolicyConflict/
 │   └── ticket-INC0013055-share-env-credentials.txt
 ├── zscaler-zia-url-filtering-policy.json   # Sample Zscaler policy export
 ├── Sample-SharePoint-AUP.docx              # Sample Acceptable Use Policy
-└── ARBITER-UC01-Design-Doc.docx            # Design document
+└── ITOps-Example01-Design-Doc.docx            # Design document
 ```
 
 ---

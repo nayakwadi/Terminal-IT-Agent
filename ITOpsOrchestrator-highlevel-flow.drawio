@@ -70,7 +70,7 @@
         <mxCell id="-W06t4KQ1AUyfKjsWTzg-12" edge="1" parent="aws_account" source="guard_icon" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="fm_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="guard_icon" parent="aws_account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E07B00;strokeWidth=2;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" value="Bedrock Guardrails&#xa;arbiter-policy-guardrail" vertex="1">
+        <mxCell id="guard_icon" parent="aws_account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#E07B00;strokeWidth=2;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;" value="Bedrock Guardrails&#xa;itopsorchestrator-policy-guardrail" vertex="1">
           <mxGeometry height="80" width="120" x="822.5" y="125" as="geometry" />
         </mxCell>
         <mxCell id="s3_vectors" parent="aws_account" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#7AA116;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;aspect=fixed;shape=mxgraph.aws4.bucket_with_objects;strokeWidth=2;" value="" vertex="1">

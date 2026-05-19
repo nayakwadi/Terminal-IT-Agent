@@ -1,5 +1,5 @@
 """
-ARBITER POC — UC-01 Policy Conflict Detection (helpdesk-ticket RAG agent).
+ITOpsOrchestrator POC — UC-01 Policy Conflict Detection (helpdesk-ticket RAG agent).
 
 The agent receives a helpdesk ticket about a user being blocked from a tool,
 retrieves the most relevant policy chunks from a Bedrock Knowledge Base built
@@ -9,8 +9,8 @@ structured finding that identifies whether the block is due to a cross-domain
 policy conflict.
 
 Two commands:
-  python arbiter_demo_uc01.py kb-check                   # quick check the KB is reachable
-  python arbiter_demo_uc01.py analyze --ticket FILE.txt  # run the full agent on a ticket
+  python itopsorchestrator_demo_uc01.py kb-check                   # quick check the KB is reachable
+  python itopsorchestrator_demo_uc01.py analyze --ticket FILE.txt  # run the full agent on a ticket
 
 LLM provider selection (same pattern as UC-02 script):
   LLM_PROVIDER=anthropic       (default)  Anthropic API direct
@@ -36,7 +36,7 @@ IAM additions required (on top of UC-02 policy):
   bedrock:Retrieve           on arn:aws:bedrock:<region>:<acct>:knowledge-base/<kb-id>
   bedrock:InvokeModel        (already in UC-02; reused here)
 
-Author: ARBITER POC build
+Author: ITOpsOrchestrator POC build
 """
 from __future__ import annotations
 
@@ -100,7 +100,7 @@ def retrieve_policy_chunks(query: str) -> list[dict[str, Any]]:
 
 # --- REASONING -------------------------------------------------------------
 
-SYSTEM_PROMPT = """You are ARBITER, an IT policy reconciliation analyst at Cedar Mutual Insurance.
+SYSTEM_PROMPT = """You are ITOpsOrchestrator, an IT policy reconciliation analyst at Nayak Fictional Insurance.
 
 Your job: given a user helpdesk ticket and a set of retrieved policy excerpts (from SharePoint Acceptable Use Policy, Zscaler URL filtering rules, AWS configuration documents, and similar sources), determine whether the issue is a CROSS-DOMAIN POLICY CONFLICT, and if so, identify the two documents that disagree.
 
@@ -262,7 +262,7 @@ def post_finding_to_teams(finding: dict[str, Any], ticket_id: str | None) -> Non
     style = STYLE_MAP.get(severity, "default")
 
     title_text = (
-        f"ARBITER policy conflict {'DETECTED' if conflict else 'not detected'}"
+        f"ITOpsOrchestrator policy conflict {'DETECTED' if conflict else 'not detected'}"
         + (f"  ·  Ticket {ticket_id}" if ticket_id else "")
     )
 
@@ -415,7 +415,7 @@ def cmd_analyze(ticket_path: str) -> None:
 # --- ENTRY -----------------------------------------------------------------
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ARBITER UC-01 policy-conflict agent")
+    ap = argparse.ArgumentParser(description="ITOpsOrchestrator UC-01 policy-conflict agent")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("kb-check")
     analyze = sub.add_parser("analyze")
