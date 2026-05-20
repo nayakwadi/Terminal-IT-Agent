@@ -232,7 +232,7 @@ def reason_with_llm(ticket_text: str, chunks: list[dict[str, Any]]) -> dict[str,
     return json.loads(text)
 
 
-# --- TEAMS OUTPUT ----------------------------------------------------------
+# --- OUTPUT (TERMINAL + TEAMS) --------------------------------------------
 
 def _provider_label() -> str:
     if PROVIDER == "anthropic":
@@ -249,6 +249,119 @@ STYLE_MAP = {
     "low": "accent",
     "informational": "good",
 }
+
+
+# ANSI colors — disabled automatically when stdout is not a TTY.
+_USE_COLOR = sys.stdout.isatty() and os.getenv("NO_COLOR", "") == ""
+
+_ANSI = {
+    "reset": "\033[0m",
+    "bold": "\033[1m",
+    "dim": "\033[2m",
+    "red": "\033[31m",
+    "yellow": "\033[33m",
+    "green": "\033[32m",
+    "cyan": "\033[36m",
+    "magenta": "\033[35m",
+    "blue": "\033[34m",
+    "white": "\033[97m",
+}
+
+_SEVERITY_COLOR = {
+    "critical": "red",
+    "high": "red",
+    "medium": "yellow",
+    "low": "cyan",
+    "informational": "green",
+}
+
+
+def _c(text: str, *styles: str) -> str:
+    if not _USE_COLOR:
+        return text
+    prefix = "".join(_ANSI.get(s, "") for s in styles)
+    return f"{prefix}{text}{_ANSI['reset']}"
+
+
+def _wrap(text: str, width: int = 92, indent: str = "  ") -> str:
+    import textwrap
+    if not text:
+        return f"{indent}{_c('(empty)', 'dim')}"
+    paragraphs = text.split("\n")
+    out = []
+    for p in paragraphs:
+        if not p.strip():
+            out.append("")
+            continue
+        out.append(textwrap.fill(
+            p, width=width,
+            initial_indent=indent, subsequent_indent=indent,
+            break_long_words=False, break_on_hyphens=False,
+        ))
+    return "\n".join(out)
+
+
+def _hr(char: str = "─", width: int = 92) -> str:
+    return _c(char * width, "dim")
+
+
+def _section(title: str) -> str:
+    return _c(f"▸ {title}", "bold", "cyan")
+
+
+def print_finding_to_terminal(finding: dict[str, Any], ticket_id: str | None) -> None:
+    """Render the finding as a clean, human-readable block on stdout."""
+    severity = (finding.get("severity") or "informational").lower()
+    conflict = bool(finding.get("conflict_detected", False))
+    confidence = float(finding.get("confidence") or 0.0)
+    sev_color = _SEVERITY_COLOR.get(severity, "white")
+
+    status_label = "CONFLICT DETECTED" if conflict else "NO CONFLICT DETECTED"
+    status_color = "red" if conflict else "green"
+
+    print()
+    print(_hr("═"))
+    header = _c("  ITOpsOrchestrator — UC-01 Policy Conflict Finding", "bold", "white")
+    print(header)
+    if ticket_id:
+        print(_c(f"  Ticket: {ticket_id}", "dim"))
+    print(_hr("═"))
+
+    print(f"  {_c('Status      :', 'bold')} {_c(status_label, 'bold', status_color)}")
+    print(f"  {_c('Severity    :', 'bold')} {_c(severity.upper(), 'bold', sev_color)}")
+    print(f"  {_c('Confidence  :', 'bold')} {confidence:.0%}")
+    print(f"  {_c('Scored by   :', 'bold')} {_provider_label()}")
+    print(f"  {_c('Region      :', 'bold')} {REGION}")
+    print(_hr())
+
+    print(_section("Summary"))
+    print(_wrap(finding.get("summary", "")))
+    print()
+
+    print(_section("User intent"))
+    print(_wrap(finding.get("ticket_user_intent", "")))
+    print()
+
+    if conflict:
+        pa = finding.get("policy_a", {}) or {}
+        pb = finding.get("policy_b", {}) or {}
+
+        print(_section("Policy A  (permits the action)"))
+        print(_wrap(_c(f"Source: {pa.get('source', '(unknown)')}", "magenta")))
+        print(_wrap(f'"{pa.get("excerpt", "")}"'))
+        print(_wrap(_c(pa.get("interpretation", ""), "dim")))
+        print()
+
+        print(_section("Policy B  (blocks the action)"))
+        print(_wrap(_c(f"Source: {pb.get('source', '(unknown)')}", "magenta")))
+        print(_wrap(f'"{pb.get("excerpt", "")}"'))
+        print(_wrap(_c(pb.get("interpretation", ""), "dim")))
+        print()
+
+    print(_section("Recommended action"))
+    print(_wrap(finding.get("recommendation", "")))
+    print(_hr("═"))
+    print()
 
 
 def post_finding_to_teams(finding: dict[str, Any], ticket_id: str | None) -> None:
@@ -381,7 +494,7 @@ def _build_retrieval_query(ticket_text: str) -> str:
     )
 
 
-def cmd_analyze(ticket_path: str) -> None:
+def cmd_analyze(ticket_path: str, post_to_teams: bool = False, show_json: bool = False) -> None:
     print(f"Provider: {_provider_label()}")
     print(f"KB:       {BEDROCK_KB_ID or '(not set)'}")
     print(f"Region:   {REGION}")
@@ -404,12 +517,19 @@ def cmd_analyze(ticket_path: str) -> None:
     print("\nStep 3/3  Reasoning with the model...")
     finding = reason_with_llm(ticket_text, chunks)
 
-    print("\n=== Finding ===")
-    print(json.dumps(finding, indent=2))
+    print_finding_to_terminal(finding, ticket_id)
 
-    print("\nPosting to MS Teams...")
-    post_finding_to_teams(finding, ticket_id)
-    print("\nDone.")
+    if show_json:
+        print(_c("Raw JSON finding:", "bold", "dim"))
+        print(json.dumps(finding, indent=2))
+        print()
+
+    if post_to_teams:
+        print("Posting to MS Teams...")
+        post_finding_to_teams(finding, ticket_id)
+    else:
+        print(_c("Teams post skipped (pass --teams to enable).", "dim"))
+    print("Done.")
 
 
 # --- ENTRY -----------------------------------------------------------------
@@ -420,6 +540,14 @@ def main() -> None:
     sub.add_parser("kb-check")
     analyze = sub.add_parser("analyze")
     analyze.add_argument("--ticket", required=True, help="path to a helpdesk ticket text file")
+    analyze.add_argument(
+        "--teams", action="store_true",
+        help="also post the finding to MS Teams via TEAMS_WEBHOOK_URL (off by default)",
+    )
+    analyze.add_argument(
+        "--json", dest="show_json", action="store_true",
+        help="additionally print the raw JSON finding after the formatted view",
+    )
     args = ap.parse_args()
 
     t0 = time.time()
@@ -427,7 +555,7 @@ def main() -> None:
         if args.cmd == "kb-check":
             cmd_kb_check()
         elif args.cmd == "analyze":
-            cmd_analyze(args.ticket)
+            cmd_analyze(args.ticket, post_to_teams=args.teams, show_json=args.show_json)
     except botocore.exceptions.NoCredentialsError:
         sys.exit("ERROR: AWS credentials not found. Run `aws configure` or set AWS_PROFILE.")
     except FileNotFoundError as e:

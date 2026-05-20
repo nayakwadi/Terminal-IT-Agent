@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Claude Cowork" version="24.7.0" type="device">
+  <diagram name="UC-01 Policy Conflict Architecture" id="uc01-policy-conflict-arch">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="ITOpsOrchestrator UC-01 — Policy Conflict Detection (AWS Reference Architecture)" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1620" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Serverless RAG agent: Helpdesk ticket → Bedrock KB retrieval → Claude Sonnet 4.6 reasoning → structured finding (UI + Teams)" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#5A6B7B;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="1620" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="userActor" value="End User&#10;(ITSM Operator)" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="430" width="40" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="browser" value="Browser&#10;(HTTPS + cookie session)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECECFF;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="170" y="440" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="teamsIcon" value="MS Teams Channel&#10;(Adaptive Card)" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.microsoft_teams;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="950" width="40" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="awsCloud" value="AWS Cloud" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=14;fontStyle=1;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="90" width="1280" height="990" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="region" value="Region: us-east-1" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;strokeColor=#147EBA;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#147EBA;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="130" width="1230" height="930" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpUI" value="Presentation Tier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5A6B7B;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#5A6B7B;" vertex="1" parent="1">
+          <mxGeometry x="420" y="180" width="320" height="320" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="appRunner" value="AWS App Runner&#10;policyconflict-ui-debug&#10;FastAPI + Uvicorn :8080" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.app_runner;" vertex="1" parent="1">
+          <mxGeometry x="510" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="appRunnerRole" value="AppRunnerInvokeAgentRole&#10;(IAM instance role)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.identity_access_management_iam_roles_anywhere;" vertex="1" parent="1">
+          <mxGeometry x="450" y="380" width="60" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="appRunnerAccessRole" value="AppRunnerECRAccessRole&#10;(IAM access role)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.identity_access_management_iam_roles_anywhere;" vertex="1" parent="1">
+          <mxGeometry x="610" y="380" width="60" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpAgent" value="Agent Tier (Serverless Container)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5A6B7B;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#5A6B7B;" vertex="1" parent="1">
+          <mxGeometry x="780" y="180" width="320" height="320" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="agentCore" value="Bedrock AgentCore Runtime&#10;agentcore_app-OQ5p2Y5Z2i&#10;Python 3.12 ARM64 · scale-to-zero" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="870" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="agentRole" value="PolicyConflictAgentRole&#10;(IAM execution role)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#DD344C;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.identity_access_management_iam_roles_anywhere;" vertex="1" parent="1">
+          <mxGeometry x="880" y="380" width="60" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpAI" value="AI / Knowledge Tier (Amazon Bedrock)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#01A88D;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#01A88D;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="180" width="470" height="320" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="bedrockKB" value="Bedrock Knowledge Base&#10;R1IAWLXIMD" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="openSearch" value="OpenSearch Serverless&#10;(Vector index)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.opensearch_service_index;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="claudeModel" value="Claude Sonnet 4.6&#10;us.anthropic.claude-sonnet-4-6&#10;(cross-region inference profile)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="s3Bucket" value="S3: agent-itops-demo&#10;(SharePoint AUP, Zscaler JSON)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.bucket_with_objects;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="400" width="75" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpSidecar" value="Security &amp; Secrets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#DD344C;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#DD344C;" vertex="1" parent="1">
+          <mxGeometry x="420" y="540" width="370" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="secretsTeams" value="Secrets Manager&#10;policyconflict/teams-webhook" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.secrets_manager;" vertex="1" parent="1">
+          <mxGeometry x="460" y="600" width="70" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="secretsUI" value="Secrets Manager&#10;policyconflict/ui-password" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.secrets_manager;" vertex="1" parent="1">
+          <mxGeometry x="660" y="600" width="70" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpCICD" value="Build &amp; Registry (CI/CD)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#C925D1;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#C925D1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="540" width="370" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="codeBuild" value="CodeBuild&#10;(ARM64 image build)" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codebuild;" vertex="1" parent="1">
+          <mxGeometry x="860" y="600" width="70" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ecrAgent" value="ECR: bedrock-agentcore-&#10;agentcore_app" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;" vertex="1" parent="1">
+          <mxGeometry x="970" y="600" width="70" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ecrUI" value="ECR: policyconflict-ui" style="sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="600" width="70" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="grpObs" value="Observability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E7157B;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontSize=11;fontStyle=2;fontColor=#E7157B;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="540" width="370" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cwLogsAgent" value="CloudWatch Logs&#10;/aws/bedrock-agentcore/...&#10;runtimes/agentcore_app" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.cloudwatch_logs;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="600" width="78" height="58" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cwLogsUI" value="CloudWatch Logs&#10;/aws/apprunner/&#10;policyconflict-ui-debug" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.cloudwatch_logs;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="600" width="78" height="58" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legendBox" value="Request Lifecycle&#10;1. Browser → App Runner (HTTPS, cookie session)&#10;2. App Runner → AgentCore (SigV4, InvokeAgentRuntime)&#10;3. Agent → KB (bedrock:Retrieve, top-K=5)&#10;4. KB → OpenSearch Serverless (vector search)&#10;5. Agent → Claude Sonnet 4.6 (bedrock:Converse)&#10;6. Agent → Secrets Manager (Teams webhook)&#10;7. (Optional) Agent → Teams (Adaptive Card)&#10;8. App Runner → Browser (rendered HTML)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="780" width="450" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="legendDesign" value="Key Design Decisions&#10;• AgentCore Runtime — scales to zero, ARM64, native Bedrock auth&#10;• Cross-region inference profile (us.) — required for Claude 4.x&#10;• OpenSearch Serverless — auto-scaling vector index for KB&#10;• App Runner — managed TLS, idle-to-zero, one-command deploy&#10;• FastAPI (not Streamlit) — no WebSocket → Envoy-compatible&#10;• Basic-auth at UI; SigV4 between AWS services&#10;• Secrets Manager — Teams webhook + UI password&#10;• Stateless agent · cookie session in UI memory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFAEC;strokeColor=#D4A017;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="900" y="780" width="690" height="160" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#147EBA;strokeWidth=2;fontSize=10;fontColor=#147EBA;" edge="1" parent="1" source="browser" target="appRunner">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="450" y="470"/><mxPoint x="450" y="280"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1lbl" value="1. HTTPS&#10;POST /analyze" style="text;html=1;align=center;fontSize=10;fontColor=#147EBA;" vertex="1" parent="1">
+          <mxGeometry x="320" y="390" width="120" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#ED7100;strokeWidth=2;fontSize=10;fontColor=#ED7100;endArrow=classic;" edge="1" parent="1" source="appRunner" target="agentCore">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2lbl" value="2. boto3 SigV4&#10;bedrock-agentcore:&#10;InvokeAgentRuntime" style="text;html=1;align=center;fontSize=10;fontColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="610" y="200" width="170" height="50" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#01A88D;strokeWidth=2;fontSize=10;fontColor=#01A88D;" edge="1" parent="1" source="agentCore" target="bedrockKB">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3lbl" value="3. bedrock:Retrieve&#10;(top-K=5 chunks)" style="text;html=1;align=center;fontSize=10;fontColor=#01A88D;" vertex="1" parent="1">
+          <mxGeometry x="970" y="200" width="180" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#8C4FFF;strokeWidth=2;fontSize=10;fontColor=#8C4FFF;" edge="1" parent="1" source="bedrockKB" target="openSearch">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4lbl" value="4. Vector search" style="text;html=1;align=center;fontSize=10;fontColor=#8C4FFF;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="218" width="90" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#7AA116;strokeWidth=1;fontSize=10;fontColor=#7AA116;dashed=1;" edge="1" parent="1" source="bedrockKB" target="s3Bucket">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5lbl" value="ingest (one-time)" style="text;html=1;align=center;fontSize=9;fontColor=#7AA116;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="345" width="100" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#01A88D;strokeWidth=2;fontSize=10;fontColor=#01A88D;" edge="1" parent="1" source="agentCore" target="claudeModel">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1450" y="350"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6lbl" value="5. bedrock:Converse&#10;(Claude Sonnet 4.6)" style="text;html=1;align=center;fontSize=10;fontColor=#01A88D;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="340" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#DD344C;strokeWidth=1;fontSize=10;fontColor=#DD344C;dashed=1;" edge="1" parent="1" source="agentCore" target="secretsTeams">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="909" y="500"/><mxPoint x="495" y="500"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7lbl" value="6. read teams webhook secret" style="text;html=1;align=center;fontSize=9;fontColor=#DD344C;" vertex="1" parent="1">
+          <mxGeometry x="540" y="505" width="200" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#DF8C42;strokeWidth=2;fontSize=10;fontColor=#DF8C42;dashed=1;" edge="1" parent="1" source="agentCore" target="teamsIcon">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1510" y="318"/><mxPoint x="1510" y="950"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8lbl" value="7. (optional)&#10;POST Adaptive Card" style="text;html=1;align=center;fontSize=10;fontColor=#DF8C42;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="600" width="140" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#DD344C;strokeWidth=1;fontSize=10;fontColor=#DD344C;dashed=1;" edge="1" parent="1" source="appRunner" target="secretsUI">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="549" y="500"/><mxPoint x="695" y="500"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9lbl" value="read UI password" style="text;html=1;align=center;fontSize=9;fontColor=#DD344C;" vertex="1" parent="1">
+          <mxGeometry x="585" y="520" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eRoleA" style="edgeStyle=none;rounded=0;html=1;dashed=1;strokeColor=#DD344C;endArrow=open;endFill=0;strokeWidth=1;" edge="1" parent="1" source="appRunner" target="appRunnerRole">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eRoleB" style="edgeStyle=none;rounded=0;html=1;dashed=1;strokeColor=#DD344C;endArrow=open;endFill=0;strokeWidth=1;" edge="1" parent="1" source="agentCore" target="agentRole">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eEcrA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ED7100;endArrow=open;endFill=0;strokeWidth=1;fontSize=9;fontColor=#ED7100;" edge="1" parent="1" source="ecrAgent" target="agentCore">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eEcrAl" value="docker pull (cold start)" style="text;html=1;fontSize=9;fontColor=#ED7100;" vertex="1" parent="1">
+          <mxGeometry x="940" y="450" width="140" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eEcrB" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ED7100;endArrow=open;endFill=0;strokeWidth=1;fontSize=9;fontColor=#ED7100;" edge="1" parent="1" source="ecrUI" target="appRunner">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1125" y="500"/><mxPoint x="549" y="500"/></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="eCB" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#C925D1;strokeWidth=1;dashed=1;fontSize=9;fontColor=#C925D1;" edge="1" parent="1" source="codeBuild" target="ecrAgent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eCBl" value="push ARM64 image" style="text;html=1;fontSize=9;fontColor=#C925D1;" vertex="1" parent="1">
+          <mxGeometry x="935" y="675" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eLogA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#E7157B;endArrow=open;endFill=0;strokeWidth=1;" edge="1" parent="1" source="agentCore" target="cwLogsAgent">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="eLogB" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#E7157B;endArrow=open;endFill=0;strokeWidth=1;" edge="1" parent="1" source="appRunner" target="cwLogsUI">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eUser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#232F3E;strokeWidth=2;fontSize=10;fontColor=#232F3E;" edge="1" parent="1" source="userActor" target="browser">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

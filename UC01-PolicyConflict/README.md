@@ -303,3 +303,17 @@ UC01-PolicyConflict/
 ## Related
 
 - [UC-02 Public Exposure Scan](../UC02-Demo/README.md) — sibling use case that scans AWS security groups for public exposure
+
+
+## New commands
+# Default — pretty terminal output, no Teams call:
+python3 itopsorchestrator_demo_uc01.py analyze \
+  --ticket sample-tickets/ticket-INC0012345-dropbox-blocked.txt
+
+# Add a Teams post:
+python3 itopsorchestrator_demo_uc01.py analyze \
+  --ticket sample-tickets/ticket-INC0012345-dropbox-blocked.txt --teams
+
+# Show raw JSON in addition to the pretty view:
+python3 itopsorchestrator_demo_uc01.py analyze \
+  --ticket sample-tickets/ticket-INC0012345-dropbox-blocked.txt --json

@@ -1,0 +1,20 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InvokeAgentCoreRuntime",
+      "Effect": "Allow",
+      "Action": "bedrock-agentcore:InvokeAgentRuntime",
+      "Resource": [
+        "arn:aws:bedrock-agentcore:us-east-1:865983313794:runtime/agentcore_app-OQ5p2Y5Z2i",
+        "arn:aws:bedrock-agentcore:us-east-1:865983313794:runtime/agentcore_app-OQ5p2Y5Z2i/*"
+      ]
+    },
+    {
+      "Sid": "UIPasswordSecret",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "arn:aws:secretsmanager:us-east-1:865983313794:secret:policyconflict/ui-password*"
+    }
+  ]
+}

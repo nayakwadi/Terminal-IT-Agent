@@ -1,0 +1,19 @@
+{
+  "ImageRepository": {
+    "ImageIdentifier": "865983313794.dkr.ecr.us-east-1.amazonaws.com/policyconflict-ui:latest",
+    "ImageConfiguration": {
+      "Port": "8080",
+      "RuntimeEnvironmentVariables": {
+        "AGENT_RUNTIME_ARN": "arn:aws:bedrock-agentcore:us-east-1:865983313794:runtime/agentcore_app-OQ5p2Y5Z2i",
+        "UI_PASSWORD_SECRET_NAME": "policyconflict/ui-password",
+        "AWS_REGION": "us-east-1",
+        "PUBLIC_HOST": "pj2nbuspmp.us-east-1.awsapprunner.com"
+      }
+    },
+    "ImageRepositoryType": "ECR"
+  },
+  "AuthenticationConfiguration": {
+    "AccessRoleArn": "arn:aws:iam::865983313794:role/AppRunnerECRAccessRole"
+  },
+  "AutoDeploymentsEnabled": false
+}

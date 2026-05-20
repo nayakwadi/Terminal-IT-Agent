@@ -1,0 +1,59 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BedrockKBRetrieve",
+      "Effect": "Allow",
+      "Action": "bedrock:Retrieve",
+      "Resource": "arn:aws:bedrock:us-east-1:865983313794:knowledge-base/R1IAWLXIMD"
+    },
+    {
+      "Sid": "BedrockInvokeModel",
+      "Effect": "Allow",
+      "Action": ["bedrock:InvokeModel", "bedrock:Converse", "bedrock:ConverseStream"],
+      "Resource": [
+        "arn:aws:bedrock:*::foundation-model/*",
+        "arn:aws:bedrock:*:865983313794:inference-profile/*"
+      ]
+    },
+    {
+      "Sid": "BedrockApplyGuardrail",
+      "Effect": "Allow",
+      "Action": "bedrock:ApplyGuardrail",
+      "Resource": "arn:aws:bedrock:us-east-1:865983313794:guardrail/*"
+    },
+    {
+      "Sid": "SecretsTeamsWebhook",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "arn:aws:secretsmanager:us-east-1:865983313794:secret:policyconflict/teams-webhook*"
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+      ],
+      "Resource": "arn:aws:logs:us-east-1:865983313794:log-group:/aws/bedrock-agentcore/*"
+    },
+    {
+      "Sid": "ECRAuth",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ECRPullAgentImage",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchCheckLayerAvailability"
+      ],
+      "Resource": "arn:aws:ecr:us-east-1:865983313794:repository/bedrock-agentcore-*"
+    }
+  ]
+}

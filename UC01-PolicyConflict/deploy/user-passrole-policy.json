@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PassAppRunnerRoles",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": [
+        "arn:aws:iam::865983313794:role/AppRunnerECRAccessRole",
+        "arn:aws:iam::865983313794:role/AppRunnerInvokeAgentRole"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": [
+            "build.apprunner.amazonaws.com",
+            "tasks.apprunner.amazonaws.com"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+default_agent: agentcore_app
+agents:
+  agentcore_app:
+    name: agentcore_app
+    language: python
+    node_version: '20'
+    entrypoint: /Users/sridharpchome/Documents/Claude/Projects/PolicyManager/OUTPUTS/Terminal-IT-Agent/UC01-PolicyConflict/agentcore_app.py
+    deployment_type: container
+    runtime_type: null
+    platform: linux/arm64
+    container_runtime: none
+    source_path: /Users/sridharpchome/Documents/Claude/Projects/PolicyManager/OUTPUTS/Terminal-IT-Agent/UC01-PolicyConflict
+    aws:
+      execution_role: arn:aws:iam::865983313794:role/PolicyConflictAgentRole
+      execution_role_auto_create: false
+      account: '865983313794'
+      region: us-east-1
+      ecr_repository: 865983313794.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-agentcore_app
+      ecr_auto_create: false
+      s3_path: null
+      s3_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+      lifecycle_configuration:
+        idle_runtime_session_timeout: null
+        max_lifetime: null
+    bedrock_agentcore:
+      agent_id: agentcore_app-OQ5p2Y5Z2i
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:865983313794:runtime/agentcore_app-OQ5p2Y5Z2i
+      agent_session_id: 58d2e7a9-2ec2-4a1f-a3ab-64154c0033eb
+    codebuild:
+      project_name: bedrock-agentcore-agentcore_app-builder
+      execution_role: arn:aws:iam::865983313794:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-b87a360759
+      source_bucket: bedrock-agentcore-codebuild-sources-865983313794-us-east-1
+    memory:
+      mode: STM_ONLY
+      memory_id: agentcore_app_mem-lgReya7lTS
+      memory_arn: arn:aws:bedrock-agentcore:us-east-1:865983313794:memory/agentcore_app_mem-lgReya7lTS
+      memory_name: agentcore_app_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: true
+      was_created_by_toolkit: true
+    identity:
+      credential_providers: []
+      workload: null
+    aws_jwt:
+      enabled: false
+      audiences: []
+      signing_algorithm: ES384
+      issuer_url: null
+      duration_seconds: 300
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+    api_key_env_var_name: null
+    api_key_credential_provider_name: null
+    is_generated_by_agentcore_create: false
